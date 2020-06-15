@@ -1,0 +1,26 @@
+{
+  "name": "prototest",
+  "version": "0.0.1",
+  "description": "First class Typescript and ES module testing framework",
+  "main": "src/index.js",
+  "type": "module",
+  "bin": {
+    "prototest": "./bin/prototest.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "pretest": "tsc",
+    "test": "node ./src/cli.js"
+  },
+  "author": "Maxwell DeVos",
+  "license": "MIT",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "ts-node": "^8.10.2"
+  },
+  "devDependencies": {
+    "@types/colors": "^1.2.1",
+    "@types/node": "^14.0.13",
+    "typescript": "^3.9.5"
+  }
+}
