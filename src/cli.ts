@@ -1,4 +1,9 @@
+#!/usr/bin/env node
+
+process.title = 'ProtoTest';
+
 import fs from "fs";
+import path from "path";
 import { status } from "./index.js";
 
 
@@ -18,7 +23,7 @@ function searchTestFolder() {
 function getTestFiles(): string[] | null {
 
     let f = null
-    if (f = fs.readdirSync('test/')) {
+    if (f = fs.readdirSync(path.resolve() + '/test/')) {
         return f.length == 0 ? null : f
     }
 
@@ -30,15 +35,18 @@ function getTestFiles(): string[] | null {
  */
 function runTestFiles(f: string[] = []) {
 
-
     f = f.filter((value) => value.endsWith(".test.js"));
 
-    f.forEach(async (path, index, array) => {
-        await import(fs.realpathSync(`test/${path}`));
+    f.forEach(async (p, index, array) => {
+
+        await import(path.resolve() + `/test/${p}`);
 
         if (array.length - 1 == index) {
             status();
         }
+
+        if (f.length === 0)
+            status();
     });
 }
 

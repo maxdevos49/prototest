@@ -33,6 +33,7 @@ tsconfig.tsbuildinfo
 
 #General
 node_modules
+bin
 
 #Security
 .env
