@@ -3,7 +3,7 @@
 process.title = 'ProtoTest';
 
 import fs from "fs";
-import path from "path";
+import glob from "glob";
 import { status } from "./index.js";
 
 
@@ -22,12 +22,11 @@ function searchTestFolder() {
  */
 function getTestFiles(): string[] | null {
 
-    let f = null
-    if (f = fs.readdirSync(path.resolve() + '/test/')) {
-        return f.length == 0 ? null : f
-    }
+    let f = glob.sync("**/*.test.js", {
+        absolute: true
+    });
 
-    return null
+    return f.length == 0 ? null : f;
 }
 
 /**
@@ -35,11 +34,11 @@ function getTestFiles(): string[] | null {
  */
 function runTestFiles(f: string[] = []) {
 
-    f = f.filter((value) => value.endsWith(".test.js"));
-
     f.forEach(async (p, index, array) => {
 
-        await import(path.resolve() + `/test/${p}`);
+        console.log(p)
+
+        await import(p);
 
         if (array.length - 1 == index) {
             status();

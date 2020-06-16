@@ -55,3 +55,17 @@ describe("This is a test", () => {
 
 });
 ```
+Output:
+```
+Test Suites
+
+This is a test
+   Should do some comparing 
+      √ expect 10 toEqual 10 
+
+Passed Test: 1
+Failed Test: 0
+Total Test: 1
+
+All Test Passed
+```

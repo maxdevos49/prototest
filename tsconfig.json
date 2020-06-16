@@ -14,7 +14,7 @@
     "outDir": "./bin", /* Redirect output structure to the directory. */
     // "rootDir": "./",                       /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
     // "composite": true,                     /* Enable project compilation */
-    "incremental": true, /* Enable incremental compilation */
+    // "incremental": true, /* Enable incremental compilation */
     // "tsBuildInfoFile": "./",               /* Specify file to store incremental compilation information */
     "removeComments": true, /* Do not emit comments to output. */
     // "noEmit": true,                        /* Do not emit outputs. */
@@ -56,11 +56,10 @@
   },
   "include": [
     "src/**/*.ts",
-    "bin/**/*.ts"
+    "test/**/*.ts"
   ],
   "exclude": [
     "bin",
     "node_modules",
-    "**/*.test.ts"
   ]
 }
