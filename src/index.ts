@@ -210,13 +210,13 @@ export function expect<T>(value: T) {
                 }
 
                 addExpect({
-                    name: `expect ${value} toThrow ${typeof type}`,
+                    name: `expect ${value} toThrow ${type.name}`,
                     status: false
                 });
 
             } catch (err) {
                 addExpect({
-                    name: `expect ${value} toThrow ${typeof type}`,
+                    name: `expect ${value} toThrow ${type.name}`,
                     status: true
                 });
             }

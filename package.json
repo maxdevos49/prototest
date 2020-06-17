@@ -1,6 +1,6 @@
 {
   "name": "prototest",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "First class Typescript and ES module testing framework",
   "main": "bin/src/index.js",
   "types": "bin/src/index.d.ts",
