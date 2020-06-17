@@ -202,6 +202,26 @@ export function expect<T>(value: T) {
             });
         },
 
+        toThrow<R extends Error>(type: R) {
+
+            try {
+                if (typeof value === "function") {
+                    value();
+                }
+
+                addExpect({
+                    name: `expect ${value} toThrow ${typeof type}`,
+                    status: false
+                });
+
+            } catch (err) {
+                addExpect({
+                    name: `expect ${value} toThrow ${typeof type}`,
+                    status: true
+                });
+            }
+        }
+
         // not: {
         //     toBe: function (expected: T) {
         //         if (value !== expected) {
