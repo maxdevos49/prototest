@@ -202,7 +202,7 @@ export function expect<T>(value: T) {
             });
         },
 
-        toThrow<R extends Error>(type: R) {
+        toThrow<R extends ErrorConstructor>(type: R) {
 
             try {
                 if (typeof value === "function") {
