@@ -96,6 +96,7 @@ export function describe<T>(this: T, description: string, describeCallback: () =
     testStats.afterAll.forEach((fn) => {
         fn.apply(this);
     });
+    log();
 }
 
 
