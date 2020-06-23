@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import fs from "fs";
 import glob from "glob";
 import { status, log } from "./index.js";
@@ -13,7 +15,7 @@ if (process.argv.length > 2) {
 
         if (key === "-t" || key === "--target")
             globPattern = value;
-    })
+    });
 }
 
 /** 
@@ -23,6 +25,7 @@ function searchTestFolder() {
     if (!fs.existsSync('test/')) {
         return false
     }
+    
     return true
 }
 

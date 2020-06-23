@@ -1,31 +1,27 @@
 {
   "name": "prototest",
-  "version": "0.0.10",
-  "description": "First class Typescript and ES module testing framework",
-  "main": "bin/index.js",
-  "types": "bin/index.d.ts",
+  "version": "0.1.0",
+  "description": "First class ES module testing framework",
+  "main": "bin/src/index.js",
+  "types": "bin/src/index.d.ts",
   "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/maxdevos49/prototest"
   },
   "bin": {
-    "prototest": "./scripts/prototest",
-    "ts-prototest": "./scripts/ts-prototest"
+    "prototest": "bin/src/cli.js"
   },
   "scripts": {
     "clean": "rm -rf ./bin",
     "build": "tsc",
-    "pretest": "npm run build",
-    "test": "./scripts/ts-prototest -t=\"**/*.test.ts\"",
     "prepublishOnly": "npm run clean; npm run build;"
   },
   "author": "Maxwell DeVos",
   "license": "MIT",
   "dependencies": {
     "colors": "^1.4.0",
-    "glob": "^7.1.6",
-    "ts-node": "^8.10.2"
+    "glob": "^7.1.6"
   },
   "devDependencies": {
     "@types/colors": "^1.2.1",
