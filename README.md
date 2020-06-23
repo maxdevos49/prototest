@@ -1,5 +1,13 @@
 # ProtoTest
 
+//TODO
+- Add node version instructions for flag
+- Add specification instructions
+- Add ts-prototest instructions
+- Add prototest instructions
+- Add log instructions
+- Add github Repository link
+
 Testing framework with esm support by default without transpilation.
 
 Install with NPM

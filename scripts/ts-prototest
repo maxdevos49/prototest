@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+# node --loader ts-node/esm.mjs ./bin/cli.js $@
+node --no-warnings --loader ts-node/esm.mjs ./bin/cli.js $@

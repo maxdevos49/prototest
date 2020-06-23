@@ -1,21 +1,30 @@
 
 import colors from "colors";
 
-interface IDescribe {
-    name: string;
-    it: Array<IIt>;
-
-    currentIt?: IIt;
-}
-
-interface IIt {
-    name: string,
-    expects: Array<IExpect>;
-}
-
 interface IExpect {
     name: string,
-    status: boolean
+    status: boolean,
+}
+
+interface IResult {
+    message: any;
+    type: ResultType;
+    status: Status;
+}
+
+enum ResultType {
+    Log,
+    Describe,
+    It,
+    Expect,
+    None
+}
+
+enum Status {
+    Success,
+    Failed,
+    None
+
 }
 
 interface IProtoTestStats {
@@ -30,9 +39,7 @@ interface IProtoTestStats {
     beforeAll: Array<() => void>;
     afterAll: Array<() => void>;
 
-    stats: Array<IDescribe>;
-
-    currentDescribe?: IDescribe;
+    testResults: Array<IResult>;
 }
 
 const testStats: IProtoTestStats = {
@@ -46,97 +53,74 @@ const testStats: IProtoTestStats = {
     beforeEach: [],
     afterEach: [],
 
-    stats: []
+    testResults: []
 }
 
-//#region Before/Afters
 
-// /**
-//  * Perform a action before each test group.
-//  * @param fn The callback of the action to perform.
-//  */
-// export function beforeEachDescribe(fn: () => void) {
-//     testStats.beforeEach.push(fn);
-// }
+export function beforeEach(fn: () => void) {
+    testStats.beforeEach.push(fn);
+}
 
-// /**
-//  * Perform a action after each test group.
-//  * @param fn The callback of the action to perform
-//  */
-// export function afterEachDescribe(fn: () => void) {
-//     testStats.afterEach.push(fn);
-// }
 
-// /**
-//  * Perform a action before each individual test.
-//  * @param fn The callback of the action to perform
-//  */
-// export function beforeAllIt(fn: () => void) {
-//     testStats.beforeAll.push(fn);
-// }
+export function afterEach(fn: () => void) {
+    testStats.afterEach.push(fn);
+}
 
-// /**
-//  * Perform a action after each individual test
-//  * @param fn The callback of the action to perform
-//  */
-// export function afterAll(fn: () => void) {
-//     testStats.afterAll.push(fn);
-// }
 
-//#endregion
+export function beforeAll(fn: () => void) {
+    testStats.beforeAll.push(fn);
+}
 
+
+export function afterAll(fn: () => void) {
+    testStats.afterAll.push(fn);
+}
+
+export function reset(): void {
+    testStats.afterAll = [];
+    testStats.beforeAll = [];
+    testStats.afterEach = [];
+    testStats.beforeEach = [];
+}
 
 export function describe<T>(this: T, description: string, describeCallback: () => void): void {
-    testStats.currentDescribe = {
-        name: description,
-        it: [],
-    }
 
     testStats.beforeAll.forEach((fn) => {
         fn.apply(this);
     })
+
+    internalLog([description], ResultType.Describe, Status.None);
 
     describeCallback.apply(this);
 
     testStats.afterAll.forEach((fn) => {
         fn.apply(this);
     });
-
-    testStats.stats.push(testStats.currentDescribe);
 }
-
 
 
 export function it<T>(this: T, shouldDescription: string, itCallback: () => void) {
 
-    if (!testStats.currentDescribe)
-        throw new Error(`Unexpected "it" call. Make sure it occurs only inside of "describe" function callbacks.`);
-
-    testStats.currentDescribe.currentIt = {
-        name: shouldDescription,
-        expects: []
-    }
-
     testStats.beforeEach.forEach(fn => {
         fn.apply(this);
     });
+
+    internalLog([shouldDescription], ResultType.It, Status.None);
 
     itCallback.apply(this)
 
     testStats.afterEach.forEach(fn => {
         fn.apply(this);
     });
-
-    testStats.currentDescribe?.it.push(testStats.currentDescribe.currentIt);
 }
-
 
 export function expect<T>(value: T) {
 
     const addExpect = (expect: IExpect) => {
         testStats.totalTest++;
         expect.status ? testStats.passedTest++ : testStats.failedTest++;
-        testStats.currentDescribe?.currentIt?.expects.push(expect);
+
+        internalLog([expect.name], ResultType.Expect, expect.status ? Status.Success : Status.Failed);
     }
 
     return {
@@ -205,21 +189,24 @@ export function expect<T>(value: T) {
         toThrow<R extends ErrorConstructor>(type: R) {
 
             try {
-                if (typeof value === "function") {
+                if (typeof value === "function")
                     value();
-                }
-
-                addExpect({
-                    name: `expect ${value} toThrow ${type.name}`,
-                    status: false
-                });
 
             } catch (err) {
-                addExpect({
-                    name: `expect ${value} toThrow ${type.name}`,
-                    status: true
-                });
+
+                if (err instanceof type)
+                    return addExpect({
+                        name: `expect ${value} toThrow ${type.name}`,
+                        status: true
+                    });
+
             }
+
+            addExpect({
+                name: `expect ${value} toThrow ${type.name}`,
+                status: false
+            });
+
         }
 
         // not: {
@@ -236,40 +223,95 @@ export function expect<T>(value: T) {
     }
 }
 
+
+export interface ISpecification {
+    title: string;
+    authors?: Array<string>;
+    date?: string;
+    description: string;
+    notes?: Array<string>;
+    specs: Array<[string, () => void]>;
+}
+export function specification(specification: ISpecification): void {
+
+    if (specification === null || specification === undefined)
+        throw new TypeError("The specification cannot be null or undefined");
+
+    log(`${"Specification:".bgBlue.underline}  ${specification.title}`.bold);
+    log();
+    log("Date: " + specification.date ?? "Na");
+    log("Author(s): " + specification?.authors?.join(", ") ?? "Na");
+    log("Description:\n    " + specification.description);
+    log();
+
+    if (specification.notes) {
+        log("Notes: ");
+        specification.notes.forEach((note, index) => {
+            log(`    ${index + 1}. ${note}`);
+        });
+    }
+
+    specification.specs.forEach(spec => describe(spec[0], spec[1]));
+
+    reset();
+}
+
+export function log(...logs: any[]): void {
+    if (logs.length === 0)
+        logs.push("");
+
+    internalLog(logs, ResultType.Log, Status.None)
+}
+
+function internalLog(logs: any[], type: ResultType, status: Status) {
+    logs.forEach((log) => {
+        testStats.testResults.push({
+            message: log,
+            type: type,
+            status: status,
+        });
+    });
+}
+
 export function status(): void {
 
-    console.log();
-    console.log(colors.bold(testStats.failedTest > 0 ? colors.bgRed("Test Suites") : colors.bgGreen("Test Suites")));
-    console.log();
+    log();
+    log("================================================");
+    log();
+    log("Test Results".underline.bold);
+    log(`Total Test: ${testStats.totalTest}`);
+    log(`Failed Test: ${testStats.failedTest.toString().red}`);
+    log(`Passed Test: ${testStats.passedTest.toString().green}`);
+    log();
+    log((testStats.failedTest ? `${testStats.failedTest} test Failed`.bgRed : "All Test Passed".bgGreen).bold);
+    log();
 
-    testStats.stats.forEach(describe => {
-        console.log(describe.name);
+    testStats.testResults.forEach((result) => {
 
-        describe.it.forEach(it => {
-            console.log(`   ${it.name} `);
+        let message: string = result.message;
 
-            it.expects.forEach(expect => {
-                console.log(`      ${expect.status === true ? colors.green('√') : colors.red('X')} ${expect.name} `)
-            });
-        });
+        //assign color if needed
+        if (result.status === Status.Failed)
+            message = colors.red(result.message);
+        else if (result.status === Status.Success)
+            message = colors.green(result.message);
 
-        console.log();
+        if (result.type === ResultType.Describe)
+            message = message.toString().underline;
+        if (result.type === ResultType.It)
+            message = "    " + message;
+        else if (result.type === ResultType.Expect) {
+            let icon = "";
+
+            if (result.status === Status.Success)
+                icon = colors.green("√");
+            else if (result.status === Status.Failed)
+                icon = colors.red("X");
+
+            message = `        ${icon} ${message}`;
+        }
+
+        console.log(message);
     });
-
-
-    // console.log("Test Suites: " + testStats.stats.length);
-    // console.log();
-    console.log("Passed Test: " + colors.green(testStats.passedTest + ""));
-    console.log("Failed Test: " + colors.red(testStats.failedTest + ""));
-    console.log("Total Test: " + testStats.totalTest);
-    console.log();
-
-    if (testStats.failedTest) {
-        console.log(colors.red(testStats.failedTest + " Test Failed\n"));
-        process.exit(1);
-    } else {
-        console.log(colors.green("All Test Passed\n"));
-        process.exit(0);
-    }
 
 }

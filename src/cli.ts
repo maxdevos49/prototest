@@ -1,11 +1,20 @@
-#!/usr/bin/env node
-
-process.title = 'ProtoTest';
-
 import fs from "fs";
 import glob from "glob";
-import { status } from "./index.js";
+import { status, log } from "./index.js";
 
+let globPattern: string = "**/*.test.js";
+
+//Process cli flags
+if (process.argv.length > 2) {
+    let args = process.argv.slice(2, process.argv.length);
+
+    args.forEach((flag) => {
+        let [key, value] = flag.split("=");
+
+        if (key === "-t" || key === "--target")
+            globPattern = value;
+    })
+}
 
 /** 
  * search for test folder 
@@ -22,7 +31,7 @@ function searchTestFolder() {
  */
 function getTestFiles(): string[] | null {
 
-    let f = glob.sync("**/*.test.js", {
+    let f = glob.sync(globPattern, {
         absolute: true
     });
 
@@ -34,11 +43,20 @@ function getTestFiles(): string[] | null {
  */
 function runTestFiles(f: string[] = []) {
 
+    log();
+    log();
+    log(("--- Test File: " + f[0] + " ---").bold);
+    log();
     f.forEach(async (p, index, array) => {
 
-        console.log(p)
-
         await import(p);
+
+        if (index + 1 < array.length) {
+            log();
+            log();
+            log(("--- Test File: " + array[index + 1] + " ---").bold);
+            log();
+        }
 
         if (array.length - 1 == index) {
             status();
