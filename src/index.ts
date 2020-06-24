@@ -214,7 +214,7 @@ export function expect<T>(value: T) {
                 let prop = (value as any)[methodName];
 
                 if (typeof prop === "function")
-                    addExpect({
+                    return addExpect({
                         name: `expect object toHaveMethod: ${methodName}`,
                         status: true
                     });
@@ -232,7 +232,7 @@ export function expect<T>(value: T) {
                 let prop = (value as any)[propertyName];
 
                 if (prop)
-                    addExpect({
+                    return addExpect({
                         name: `expect object toHaveProperty: ${propertyName}`,
                         status: true
                     });
