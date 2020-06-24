@@ -231,7 +231,7 @@ export function expect<T>(value: T) {
             if (typeof value === "object") {
                 let prop = (value as any)[propertyName];
 
-                if (prop)
+                if (typeof prop !== "undefined")
                     return addExpect({
                         name: `expect object toHaveProperty: ${propertyName}`,
                         status: true
