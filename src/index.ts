@@ -207,7 +207,42 @@ export function expect<T>(value: T) {
                 name: `expect ${value} toThrow ${type.name}`,
                 status: false
             });
+        },
 
+        toHaveMethod(methodName: string) {
+            if (typeof value === "object") {
+                let prop = (value as any)[methodName];
+
+                if (typeof prop === "function")
+                    addExpect({
+                        name: `expect object toHaveMethod: ${methodName}`,
+                        status: true
+                    });
+            }
+
+            //Failed
+            addExpect({
+                name: `expect object toHaveMethod: ${methodName}`,
+                status: false
+            });
+        },
+
+        toHaveProperty(propertyName: string) {
+            if (typeof value === "object") {
+                let prop = (value as any)[propertyName];
+
+                if (prop)
+                    addExpect({
+                        name: `expect object toHaveProperty: ${propertyName}`,
+                        status: true
+                    });
+            }
+
+            //Failed
+            addExpect({
+                name: `expect object toHaveProperty: ${propertyName}`,
+                status: false
+            });
         }
 
         // not: {
